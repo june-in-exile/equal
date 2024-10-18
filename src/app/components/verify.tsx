@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Image from "next/image";
 import { VerificationState, type IVerifyProps } from '@/src/app/type';
 import { verifyWorldId } from '../../utils/verifyWorldId';
@@ -6,6 +6,7 @@ import { VerificationLevel, IDKitWidget, useIDKit, type ISuccessResult } from "@
 
 const Verify: React.FC<IVerifyProps> = ({ setVerification, setAttestationId }) => {
     const [loading, setLoading] = useState(false);
+    const [worldIdVerifying, setWorldIdVerifying] = useState(false);
     const [worldIdVerified, setWorldIdVerified] = useState(false);
     const [worldIdValid, setWorldIdValid] = useState(false);
 
@@ -19,6 +20,42 @@ const Verify: React.FC<IVerifyProps> = ({ setVerification, setAttestationId }) =
         throw new Error("action is not set in environment variables!");
     }
 
+    const { open, setOpen } = useIDKit({});
+
+    const handleClick = () => {
+        setLoading(true);
+        setWorldIdVerifying(true);
+    };
+
+    useEffect(() => {
+        if (worldIdVerifying) {
+            console.log(`open window.`);
+            setOpen(true);
+        } else {
+            console.log(`close window.`);
+            setOpen(false);
+        }
+    }, [worldIdVerifying, setOpen]);
+
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        console.log(`worldIdVerifying: ${worldIdVerifying}`);
+        if (worldIdVerifying) {
+            console.log(`check!!!`);
+            interval = setInterval(() => {
+                if (!open) {
+                    setLoading(false);
+                    clearInterval(interval);
+                    setWorldIdVerifying(false);
+                }
+            }, 100);
+        }
+        return () => {
+            clearInterval(interval);
+        };
+    }, [worldIdVerifying, open]);
+
     const handleWroldIdVerify = async (proof: ISuccessResult) => {
         console.log(
             "Proof received from IDKit, sending to backend:\n",
@@ -29,26 +66,18 @@ const Verify: React.FC<IVerifyProps> = ({ setVerification, setAttestationId }) =
             setWorldIdValid(true);
             console.log("World ID: Successful response from backend:\n", JSON.stringify(data)); // Log the response from our backend for visibility
         } else {
-            setWorldIdValid(false);
             // throw new Error(`Verification failed: ${data.detail}`);
             console.log(`World ID: Verification failed: ${data.detail}`);
         }
-        setWorldIdVerified(true)
+        setWorldIdVerifying(false);
+        setWorldIdVerified(true);
     };
 
     const onSuccess = (result: ISuccessResult) => {
         console.log(`Successfully verified with World ID with nullifier hash: ${result.nullifier_hash}`);
     };
 
-    const { setOpen } = useIDKit({});
-
-    useEffect(() => {
-        if (worldIdVerified) {
-            handleTheOtherVerify();
-        }
-    }, [worldIdVerified]);
-
-    const handleTheOtherVerify = async () => {
+    const handleTheOtherVerify = useCallback(async () => {
         try {
             const response = await fetch('/api/verify', {
                 method: 'POST',
@@ -68,11 +97,11 @@ const Verify: React.FC<IVerifyProps> = ({ setVerification, setAttestationId }) =
                 switch (res.reason) {
                     case "worldId":
                         setVerification(VerificationState.InvalidWorldId);
-                        alert("Verification failed. Please check your World ID credentials.")
+                        alert("Verification failed. Please check your World ID credentials.");
                         break;
                     case "metamask":
                         setVerification(VerificationState.MetamaskBalanceNotEnough);
-                        alert("Verification failed. Please check your Metamask balance.")
+                        alert("Verification failed. Please check your Metamask balance.");
                         break;
                     default:
                         setVerification(VerificationState.Unverified);
@@ -85,7 +114,13 @@ const Verify: React.FC<IVerifyProps> = ({ setVerification, setAttestationId }) =
         } finally {
             setLoading(false);
         }
-    };
+    }, [worldIdValid, setAttestationId, setVerification]);
+
+    useEffect(() => {
+        if (worldIdVerified) {
+            handleTheOtherVerify();
+        }
+    }, [worldIdVerified, handleTheOtherVerify]);
 
     return (<>
         <IDKitWidget
@@ -97,10 +132,7 @@ const Verify: React.FC<IVerifyProps> = ({ setVerification, setAttestationId }) =
         />
         <button
             className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            onClick={() => {
-                setLoading(true);
-                setOpen(true);
-            }}
+            onClick={handleClick}
             disabled={loading}
         >
             <Image
