@@ -8,8 +8,6 @@ enum VerificationState {
 interface IVerifyProps {
     verification: VerificationState;
     setVerification: React.Dispatch<React.SetStateAction<VerificationState>>;
-    attestationId: string;
-    setAttestationId: React.Dispatch<React.SetStateAction<string>>;
 }
 
 interface IStatusProps {

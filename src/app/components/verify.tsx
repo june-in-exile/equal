@@ -1,15 +1,16 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { VerificationState, type IVerifyProps } from '@/src/app/type';
 import { verifyWorldId } from '../../utils/verifyWorldId';
 import { VerificationLevel, IDKitWidget, useIDKit, type ISuccessResult } from "@worldcoin/idkit";
 import Image from "next/image";
 import Link from "next/link";
 
-const Verify: React.FC<IVerifyProps> = ({ verification, setVerification, attestationId, setAttestationId }) => {
+const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
     const [loading, setLoading] = useState(false);
     const [worldIdVerifying, setWorldIdVerifying] = useState(false);
     const [worldIdVerified, setWorldIdVerified] = useState(false);
     const [worldIdValid, setWorldIdValid] = useState(false);
+    const attestationId = useRef("");
 
     const app_id = process.env.NEXT_PUBLIC_WLD_APP_ID as `app_${string}`;
     const action = process.env.NEXT_PUBLIC_WLD_ACTION;
@@ -83,7 +84,7 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification, attesta
             const res = await response.json();
             if (response.ok) {
                 setVerification(VerificationState.Verified);
-                setAttestationId(res.attestationId);
+                attestationId.current = res.attestationId;
                 alert('Verification succeeded.');
             } else {
                 switch (res.reason) {
@@ -106,7 +107,7 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification, attesta
         } finally {
             setLoading(false);
         }
-    }, [worldIdValid, setAttestationId, setVerification]);
+    }, [worldIdValid, setVerification]);
 
     useEffect(() => {
         if (worldIdVerified) {
@@ -124,7 +125,7 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification, attesta
         />
         {(verification === VerificationState.Verified) ?
             <Link
-                href={`https://scan.sign.global/attestation/${attestationId}`}
+                href={`https://scan.sign.global/attestation/${attestationId.current}`}
                 className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
                 target="_blank"
                 rel="noopener noreferrer"
