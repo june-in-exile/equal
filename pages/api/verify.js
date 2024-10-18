@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
-import createAttestation from '../../src/createAttestation.js'
+import createAttestation from '@/src/createAttestation.js'
 
-dotenv.config({ path: '../../.env.local' });
+dotenv.config({ path: '@/.env.local' });
 
 export default async function handler(req, res) {
     const schemaId = process.env.schemaId;
@@ -12,6 +12,6 @@ export default async function handler(req, res) {
     const indexingValue = 'the verification pass';
     const attestationInfo = await createAttestation(schemaId, data, indexingValue);
 
-    res.status(200).json({ message: `Attestation created. Check it on https://scan.sign.global/attestation/${attestationInfo.attestationId}` });
+    res.status(200).json({ attestationId: attestationInfo.attestationId });
     // res.status(405).json({ message: 'Method Not Allowed' });
 }

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import Image from "next/image";
+import Verification from '@/app/type/verification';
 
-const Verify = () => {
+const Verify = ({ setVerification, setAttestationId }) => {
     const [loading, setLoading] = useState(false);
 
     const handleVerify = async () => {
@@ -10,8 +11,17 @@ const Verify = () => {
         try {
             const response = await fetch('/api/verify', {
                 method: 'GET',
+                // headers: {
+                //     'Content-Type': 'application/json',
+                // },
+                // body: JSON.stringify({
+                //     // 如果需要發送額外的資料，可以在這裡加入
+                // }),
             });
             if (response.ok) {
+                const data = await response.json();
+                setVerification(Verification.VERIFIED);
+                setAttestationId(data.attestationId);
                 alert('Success!');
             } else {
                 alert('Fail!');
