@@ -1,13 +1,8 @@
 import React from 'react';
 import Link from "next/link";
-import { VerificationState } from "@/src/app/type/verification";
+import { VerificationState, type IStatusProps } from "@/src/app/type/verification";
 
-interface StatusProps {
-    verification: VerificationState;
-    attestationId: string;
-}
-
-const Status: React.FC<StatusProps> = ({ verification, attestationId }) => {
+const Status: React.FC<IStatusProps> = ({ verification, attestationId }) => {
     return (
         <div >
             <p className="list-inside list-decimal text-base text-center sm:text-left font-[family-name:var(--font-geist-mono)]">

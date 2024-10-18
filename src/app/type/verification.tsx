@@ -6,13 +6,14 @@ enum VerificationState {
 
 }
 
-export { VerificationState };
+interface IVerifyProps {
+    setVerification: React.Dispatch<React.SetStateAction<VerificationState>>;
+    setAttestationId: React.Dispatch<React.SetStateAction<string>>;
+}
 
-// export const Verification = {
-//     UNVERIFIED: 'Unverified',
-//     WORLDID_UNVERIFIED: 'WorldIdUnverified',
-//     METAMASK_UNVERIFIED: 'MetamaskUnverified',
-//     VERIFIED: 'Verified',
-// } as const;
+interface IStatusProps {
+    verification: VerificationState;
+    attestationId: string;
+}
 
-// export type VerificationType = typeof Verification[keyof typeof Verification];
+export { VerificationState, type IVerifyProps, type IStatusProps };

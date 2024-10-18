@@ -1,13 +1,8 @@
 import { useState } from 'react';
 import Image from "next/image";
-import { VerificationState } from '@/src/app/type/verification';
+import { VerificationState, type IVerifyProps } from '@/src/app/type/verification';
 
-interface VerifyProps {
-    setVerification: React.Dispatch<React.SetStateAction<VerificationState>>;
-    setAttestationId: React.Dispatch<React.SetStateAction<string>>;
-}
-
-const Verify: React.FC<VerifyProps> = ({ setVerification, setAttestationId }) => {
+const Verify: React.FC<IVerifyProps> = ({ setVerification, setAttestationId }) => {
     const [loading, setLoading] = useState(false);
 
     const handleVerify = async () => {
