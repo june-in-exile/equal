@@ -23,13 +23,22 @@ const Verify: React.FC<VerifyProps> = ({ setVerification, setAttestationId }) =>
                 //     // 如果需要發送額外的資料，可以在這裡加入
                 // }),
             });
+            const res = await response.json();
             if (response.ok) {
-                const data = await response.json();
                 setVerification(Verification.VERIFIED);
-                setAttestationId(data.attestationId);
-                alert('Success!');
+                setAttestationId(res.attestationId);
+                alert('Verification succeed!');
             } else {
-                alert('Fail!');
+                switch (res.reason) {
+                    case "worldId":
+                        alert("Verification failed. Please check your World ID credentials.")
+                        break;
+                    case "metamask":
+                        alert("Verification failed. Please check your Metamask balance.")
+                        break;
+                    default:
+                        alert('Fail!');
+                }
             }
         } catch (error) {
             console.error('Error:', error);
