@@ -1,10 +1,10 @@
 "use client";
 import { useState } from 'react';
-import Verify from '@/src/components/verify'
-import Read from '@/src/components/read'
-import Status from '@/src/components/status'
-import Description from '@/src/components/description'
-import { VerificationState } from '@/src/app/type/verification';
+import { Verify, Read, Status, Description } from './components';
+import { VerificationState } from './type';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '@/.env.local' });
 
 export default function Home() {
     const [verification, setVerification] = useState<VerificationState>(VerificationState.Unverified);
@@ -20,6 +20,6 @@ export default function Home() {
                 <Status verification={verification} attestationId={attestationId} />
                 <Description />
             </main>
-        </div>
+        </div >
     );
 }

@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import dotenv from 'dotenv';
-import verifyWorldId from '@/src/utils/verifyWorldId.js'
 import verifyMetamask from '@/src/utils/verifyMetamask.js'
 import createAttestation from '@/src/utils/createAttestation.js'
 
@@ -8,8 +7,10 @@ dotenv.config({ path: '@/.env.local' });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
-    const worldIdVerified: boolean = verifyWorldId();
-    if (!worldIdVerified) {
+    console.log("backend start verify...");
+
+    const worldIdValid: boolean = req.body.worldIdValid;
+    if (!worldIdValid) {
         res.status(401).json({ reason: "worldId" });
     }
 

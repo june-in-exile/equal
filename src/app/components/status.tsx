@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from "next/link";
-import { VerificationState, type IStatusProps } from "@/src/app/type/verification";
+import { VerificationState, type IStatusProps } from "@/src/app/type";
 
 const Status: React.FC<IStatusProps> = ({ verification, attestationId }) => {
     return (
@@ -19,7 +19,9 @@ const Status: React.FC<IStatusProps> = ({ verification, attestationId }) => {
                         className="hover:text-gray-400 transition duration-200"
                         style={{
                             textShadow: '0 0 10px gray, 0 0 5px white', // 微亮效果
-                        }} >
+                        }}
+                        target="_blank"
+                        rel="noopener noreferrer">
                         (View Attestation)
                     </Link>
                 </p>
