@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Image from "next/image";
-import { Verification, VerificationType } from '@/app/type/verification';
+import { Verification, VerificationType } from '@/src/app/type/verification';
 
 interface VerifyProps {
     setVerification: React.Dispatch<React.SetStateAction<VerificationType>>;

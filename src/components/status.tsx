@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from "next/link";
-import { Verification, VerificationType } from "@/app/type/verification";
+import { Verification, VerificationType } from "@/src/app/type/verification";
 
 interface StatusProps {
     verification: VerificationType;

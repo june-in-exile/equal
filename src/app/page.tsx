@@ -1,10 +1,10 @@
 "use client";
 import { useState } from 'react';
-import Verify from '@/components/verify'
-import Read from '@/components/read'
-import Status from '@/components/status'
-import Description from '@/components/description'
-import { Verification, VerificationType } from '@/app/type/verification';
+import Verify from '@/src/components/verify'
+import Read from '@/src/components/read'
+import Status from '@/src/components/status'
+import Description from '@/src/components/description'
+import { Verification, VerificationType } from '@/src/app/type/verification';
 
 export default function Home() {
     const [verification, setVerification] = useState<VerificationType>(Verification.UNVERIFIED);

@@ -1,3 +1,4 @@
 export default function verifyWorldId() {
-    return false
+
+    return true
 }
