@@ -1,7 +1,17 @@
-export default function handler(req, res) {
-    if (req.method === 'GET') {
-        res.status(200).json({ message: 'Verified successfully!' });
-    } else {
-        res.status(405).json({ message: 'Method Not Allowed' });
-    }
+import dotenv from 'dotenv';
+import createAttestation from '../../src/createAttestation.js'
+
+dotenv.config({ path: '../../.env.local' });
+
+export default async function handler(req, res) {
+    const schemaId = process.env.schemaId;
+    const data = {
+        "World ID Verification": "true",
+        "Metamask Balance Check": "true"
+    };
+    const indexingValue = 'the verification pass';
+    const attestationInfo = await createAttestation(schemaId, data, indexingValue);
+
+    res.status(200).json({ message: `Attestation created. Check it on https://scan.sign.global/attestation/${attestationInfo.attestationId}` });
+    // res.status(405).json({ message: 'Method Not Allowed' });
 }
