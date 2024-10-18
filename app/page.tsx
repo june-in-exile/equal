@@ -4,10 +4,10 @@ import Verify from '@/components/verify'
 import Read from '@/components/read'
 import Status from '@/components/status'
 import Description from '@/components/description'
-import Verification from '@/app/type/verification';
+import { Verification, VerificationType } from '@/app/type/verification';
 
 export default function Home() {
-    const [verification, setVerification] = useState(Verification.UNVERIFIED);
+    const [verification, setVerification] = useState<VerificationType>(Verification.UNVERIFIED);
     const [attestationId, setAttestationId] = useState("");
 
     return (
