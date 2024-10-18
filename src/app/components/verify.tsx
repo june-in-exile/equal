@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
-import Image from "next/image";
 import { VerificationState, type IVerifyProps } from '@/src/app/type';
 import { verifyWorldId } from '../../utils/verifyWorldId';
 import { VerificationLevel, IDKitWidget, useIDKit, type ISuccessResult } from "@worldcoin/idkit";
+import Image from "next/image";
+import Link from "next/link";
 
-const Verify: React.FC<IVerifyProps> = ({ setVerification, setAttestationId }) => {
+const Verify: React.FC<IVerifyProps> = ({ verification, setVerification, attestationId, setAttestationId }) => {
     const [loading, setLoading] = useState(false);
     const [worldIdVerifying, setWorldIdVerifying] = useState(false);
     const [worldIdVerified, setWorldIdVerified] = useState(false);
@@ -28,26 +29,17 @@ const Verify: React.FC<IVerifyProps> = ({ setVerification, setAttestationId }) =
     };
 
     useEffect(() => {
-        if (worldIdVerifying) {
-            console.log(`open window.`);
-            setOpen(true);
-        } else {
-            console.log(`close window.`);
-            setOpen(false);
-        }
+        setOpen(worldIdVerifying);
     }, [worldIdVerifying, setOpen]);
-
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
-        console.log(`worldIdVerifying: ${worldIdVerifying}`);
         if (worldIdVerifying) {
-            console.log(`check!!!`);
             interval = setInterval(() => {
                 if (!open) {
                     setLoading(false);
-                    clearInterval(interval);
                     setWorldIdVerifying(false);
+                    clearInterval(interval);
                 }
             }, 100);
         }
@@ -130,20 +122,31 @@ const Verify: React.FC<IVerifyProps> = ({ setVerification, setAttestationId }) =
             handleVerify={handleWroldIdVerify}
             verification_level={VerificationLevel.Device}
         />
-        <button
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            onClick={handleClick}
-            disabled={loading}
-        >
-            <Image
-                className="dark:invert"
-                src="https://nextjs.org/icons/vercel.svg"
-                alt="Black triangle"
-                width={20}
-                height={20}
-            />
-            {loading ? 'Verifying...' : 'Verify now'}
-        </button>
+        {(verification === VerificationState.Verified) ?
+            <Link
+                href={`https://scan.sign.global/attestation/${attestationId}`}
+                className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                {'View attestation'}
+            </Link>
+            :
+            <button
+                className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+                onClick={handleClick}
+                disabled={loading}
+            >
+                <Image
+                    className="dark:invert"
+                    src="https://nextjs.org/icons/vercel.svg"
+                    alt="Black triangle"
+                    width={20}
+                    height={20}
+                />
+                {loading ? 'Verifying...' : 'Verify now'}
+            </button>
+        }
     </>)
 }
 
