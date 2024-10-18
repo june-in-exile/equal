@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import dotenv from 'dotenv';
-import verifyWorldId from '@/src/verifyWorldId.js'
-import verifyMetamask from '@/src/verifyMetamask.js'
-import createAttestation from '@/src/createAttestation.js'
+import verifyWorldId from '@/src/utils/verifyWorldId.js'
+import verifyMetamask from '@/src/utils/verifyMetamask.js'
+import createAttestation from '@/src/utils/createAttestation.js'
 
 dotenv.config({ path: '@/.env.local' });
 

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import { strict as assert } from 'assert';
-import revokeAttestation from '../src/revokeAttestation.js';
+import revokeAttestation from '../src/utils/revokeAttestation.js';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '../.env.local' });

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import { strict as assert } from 'assert';
-import createAttestation from '../src/createAttestation.js';
+import createAttestation from '../src/utils/createAttestation.js';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '../.env.local' });

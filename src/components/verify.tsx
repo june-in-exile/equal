@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import Image from "next/image";
-import { Verification, VerificationType } from '@/src/app/type/verification';
+import { VerificationState } from '@/src/app/type/verification';
 
 interface VerifyProps {
-    setVerification: React.Dispatch<React.SetStateAction<VerificationType>>;
+    setVerification: React.Dispatch<React.SetStateAction<VerificationState>>;
     setAttestationId: React.Dispatch<React.SetStateAction<string>>;
 }
 
@@ -25,18 +25,21 @@ const Verify: React.FC<VerifyProps> = ({ setVerification, setAttestationId }) =>
             });
             const res = await response.json();
             if (response.ok) {
-                setVerification(Verification.VERIFIED);
+                setVerification(VerificationState.Verified);
                 setAttestationId(res.attestationId);
                 alert('Verification succeed!');
             } else {
                 switch (res.reason) {
                     case "worldId":
+                        setVerification(VerificationState.WorldIdUnverified);
                         alert("Verification failed. Please check your World ID credentials.")
                         break;
                     case "metamask":
+                        setVerification(VerificationState.MetamaskUnverified);
                         alert("Verification failed. Please check your Metamask balance.")
                         break;
                     default:
+                        setVerification(VerificationState.Unverified);
                         alert('Fail!');
                 }
             }

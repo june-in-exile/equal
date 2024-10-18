@@ -1,9 +1,9 @@
 import React from 'react';
 import Link from "next/link";
-import { Verification, VerificationType } from "@/src/app/type/verification";
+import { VerificationState } from "@/src/app/type/verification";
 
 interface StatusProps {
-    verification: VerificationType;
+    verification: VerificationState;
     attestationId: string;
 }
 
@@ -13,7 +13,7 @@ const Status: React.FC<StatusProps> = ({ verification, attestationId }) => {
             <p className="list-inside list-decimal text-base text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
                 Your Status: <span style={{ textDecoration: 'underline' }}>{verification}</span>.
             </p>
-            {(verification === Verification.UNVERIFIED) ?
+            {(verification === VerificationState.Unverified) ?
                 <p className="mt-4">
                     (No Attestation Yet.)
                 </p>

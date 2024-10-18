@@ -1,6 +1,6 @@
 import test from 'node:test';
 import { strict as assert } from 'assert';
-import createOffChainSchema from '../src/createOffChainSchema.js';
+import createOffChainSchema from '../src/utils/createOffChainSchema.js';
 
 test('createOffChainSchema should return schema info', async () => {
     const name = "EQual";
