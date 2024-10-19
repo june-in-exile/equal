@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { VerificationState, type IVerifyProps } from '@/src/app/type';
+import { VerificationState, type IVerifyProps } from '../type';
 import { verifyWorldId } from '../../utils/verifyWorldId';
 import { VerificationLevel, IDKitWidget, useIDKit, type ISuccessResult } from "@worldcoin/idkit";
 import Image from "next/image";
@@ -9,8 +9,9 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
     const [loading, setLoading] = useState(false);
     const [worldIdVerifying, setWorldIdVerifying] = useState(false);
     const [worldIdVerified, setWorldIdVerified] = useState(false);
-    const [worldIdValid, setWorldIdValid] = useState(false);
+    const worldIdValid = useRef(false);
     const attestationId = useRef("");
+    const { open, setOpen } = useIDKit({});
 
     const app_id = process.env.NEXT_PUBLIC_WLD_APP_ID as `app_${string}`;
     const action = process.env.NEXT_PUBLIC_WLD_ACTION;
@@ -22,16 +23,9 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
         throw new Error("action is not set in environment variables!");
     }
 
-    const { open, setOpen } = useIDKit({});
-
-    const handleClick = () => {
-        setLoading(true);
-        setWorldIdVerifying(true);
-    };
-
     useEffect(() => {
         setOpen(worldIdVerifying);
-    }, [worldIdVerifying, setOpen]);
+    }, [worldIdVerifying]);
 
     useEffect(() => {
         let interval: NodeJS.Timeout;
@@ -49,14 +43,25 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
         };
     }, [worldIdVerifying, open]);
 
-    const handleWroldIdVerify = async (proof: ISuccessResult) => {
+    useEffect(() => {
+        if (worldIdVerified) {
+            handleTheOtherVerify();
+        }
+    }, [worldIdVerified]);
+
+    const handleClick = () => {
+        setLoading(true);
+        setWorldIdVerifying(true);
+    };
+
+    const handleWorldIdVerify = async (proof: ISuccessResult) => {
         console.log(
             "Proof received from IDKit, sending to backend:\n",
             JSON.stringify(proof)
         ); // Log the proof from IDKit to the console for visibility
         const data = await verifyWorldId(proof);
         if (data.success) {
-            setWorldIdValid(true);
+            worldIdValid.current = true;
             console.log("World ID: Successful response from backend:\n", JSON.stringify(data)); // Log the response from our backend for visibility
         } else {
             // throw new Error(`Verification failed: ${data.detail}`);
@@ -107,20 +112,14 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
         } finally {
             setLoading(false);
         }
-    }, [worldIdValid, setVerification]);
-
-    useEffect(() => {
-        if (worldIdVerified) {
-            handleTheOtherVerify();
-        }
-    }, [worldIdVerified, handleTheOtherVerify]);
+    }, [setVerification]);
 
     return (<>
         <IDKitWidget
             action={action}
             app_id={app_id}
             onSuccess={onSuccess}
-            handleVerify={handleWroldIdVerify}
+            handleVerify={handleWorldIdVerify}
             verification_level={VerificationLevel.Device}
         />
         {(verification === VerificationState.Verified) ?
