@@ -58,11 +58,11 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
         console.log(
             "Proof received from IDKit, sending to backend:\n",
             JSON.stringify(proof)
-        ); // Log the proof from IDKit to the console for visibility
+        );
         const data = await verifyWorldId(proof);
         if (data.success) {
             worldIdValid.current = true;
-            console.log("World ID: Successful response from backend:\n", JSON.stringify(data)); // Log the response from our backend for visibility
+            console.log("World ID: Successful response from backend:\n", JSON.stringify(data));
         } else {
             // throw new Error(`Verification failed: ${data.detail}`);
             console.log(`World ID: Verification failed: ${data.detail}`);
@@ -77,6 +77,9 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
 
     const handleTheOtherVerify = useCallback(async () => {
         try {
+            // TODO: connect metamask
+            // TODO: check balance
+
             const response = await fetch('/api/verify', {
                 method: 'POST',
                 headers: {
