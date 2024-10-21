@@ -13,8 +13,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(401).json({ reason: "worldId" });
     }
 
-    const metamaskVerified: boolean = req.body.metamaskValid;
-    if (!metamaskVerified) {
+    const metamaskValid: boolean = req.body.metamaskValid;
+    if (!metamaskValid) {
         res.status(401).json({ reason: "metamask" });
     }
 

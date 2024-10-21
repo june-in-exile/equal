@@ -208,7 +208,9 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
 
         if (account && /^0x[a-fA-F0-9]{40}$/.test(account)) {
             const balance = await getBalance(account);
+            console.log(`balance: ${balance}`);
             metamaskValid.current = (balance !== undefined && balance >= 0.02 * (10 ** 18));
+            console.log(`metamaskValid: ${metamaskValid.current}`);
         } else {
             console.error('Invalid account address:', account);
         }
@@ -226,8 +228,8 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    worldIdValid: worldIdValid,
-                    metamaskValid: metamaskValid,
+                    worldIdValid: worldIdValid.current,
+                    metamaskValid: metamaskValid.current,
                 }),
             });
             const res = await response.json();
