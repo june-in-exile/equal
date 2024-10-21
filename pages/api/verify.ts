@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import dotenv from 'dotenv';
-import verifyMetamask from '@/src/utils/verifyMetamask.js'
 import createAttestation from '@/src/utils/createAttestation.js'
 
 dotenv.config({ path: '@/.env.local' });
@@ -14,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(401).json({ reason: "worldId" });
     }
 
-    const metamaskVerified: boolean = verifyMetamask();
+    const metamaskVerified: boolean = req.body.metamaskValid;
     if (!metamaskVerified) {
         res.status(401).json({ reason: "metamask" });
     }

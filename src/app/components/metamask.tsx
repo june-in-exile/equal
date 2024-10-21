@@ -2,12 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { MetaMaskSDK, SDKProvider } from '@metamask/sdk';
-import {
-    ConnectionStatus,
-    EventType,
-    ServiceStatus,
-} from '@metamask/sdk-communication-layer';
-import { ethers } from 'ethers';
+import { EventType } from '@metamask/sdk-communication-layer';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '@/.env.local' });
@@ -142,7 +137,7 @@ const Metamask = () => {
     const checkBalance = async () => {
         const account = await connect();
         console.log(`account:`, account);
-        
+
         if (account && /^0x[a-fA-F0-9]{40}$/.test(account)) {
             const balance = await getBalance(account);
             setChecked(balance !== undefined && balance >= 0.02 * (10 ** 18));
@@ -159,7 +154,6 @@ const Metamask = () => {
             <button onClick={checkBalance}>
                 CheckBalance
             </button>
-            <h2>{`Account: ${account}`}</h2>
             <h2>{`Checked: ${checked}`}</h2>
         </>
     )

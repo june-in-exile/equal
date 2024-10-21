@@ -1,8 +1,8 @@
 enum VerificationState {
-    Unverified = "unverified",
-    InvalidWorldId = "invalid_world_id",
-    MetamaskBalanceNotEnough = "not_enough_balance_in_metamask",
-    Verified = "verified"
+    Unverified = "Unverified",
+    InvalidWorldId = "Invalid world id",
+    MetamaskBalanceNotEnough = "Not enough balance in metamask",
+    Verified = "Verified"
 }
 
 interface IVerifyProps {

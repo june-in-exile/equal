@@ -10,6 +10,7 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
     const [worldIdVerifying, setWorldIdVerifying] = useState(false);
     const [worldIdVerified, setWorldIdVerified] = useState(false);
     const worldIdValid = useRef(false);
+    const metamaskValid = useRef(false);
     const attestationId = useRef("");
     const { open, setOpen } = useIDKit({});
 
@@ -45,14 +46,9 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
 
     useEffect(() => {
         if (worldIdVerified) {
-            handleTheOtherVerify();
+            handleMetamaskVerify();
         }
     }, [worldIdVerified]);
-
-    const handleVerify = () => {
-        setLoading(true);
-        setWorldIdVerifying(true);
-    };
 
     const handleWorldIdVerify = async (proof: ISuccessResult) => {
         console.log(
@@ -75,11 +71,13 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
         console.log(`Successfully verified with World ID with nullifier hash: ${result.nullifier_hash}`);
     };
 
-    const handleTheOtherVerify = useCallback(async () => {
-        try {
-            // TODO: connect metamask
-            // TODO: check balance
+    const handleMetamaskVerify = () => {
+        metamaskValid.current = true;
+        sendVerifyApi();
+    }
 
+    const sendVerifyApi = useCallback(async () => {
+        try {
             const response = await fetch('/api/verify', {
                 method: 'POST',
                 headers: {
@@ -87,6 +85,7 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
                 },
                 body: JSON.stringify({
                     worldIdValid: worldIdValid,
+                    metamaskValid: metamaskValid,
                 }),
             });
             const res = await response.json();
@@ -116,6 +115,11 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
             setLoading(false);
         }
     }, [setVerification]);
+
+    const handleVerify = () => {
+        setLoading(true);
+        setWorldIdVerifying(true);
+    };
 
     return (<>
         <IDKitWidget
