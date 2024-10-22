@@ -9,7 +9,7 @@ test('createAttestation should return attestation info', async () => {
     const schemaId = process.env.schemaId;
     const data = {
         "World ID Verification": "true",
-        "Metamask Balance Check": "true"
+        "Metamask Balance >= 0.02ETH": "true"
     };
     const indexingValue = 'hahaha';
     const attestationInfo = await createAttestation(schemaId, data, indexingValue);

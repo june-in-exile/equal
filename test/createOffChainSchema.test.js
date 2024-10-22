@@ -6,8 +6,8 @@ test('createOffChainSchema should return schema info', async () => {
     const name = "EQual";
     // The type field is just for refernece. The actual type is always string.
     const data = [
-        { name: 'World ID Verification', type: 'boolean' },
-        { name: 'Metamask Balance Check', type: 'boolean' },
+        { name: "World ID Verification", type: 'boolean' },
+        { name: "Metamask Balance >= 0.02ETH", type: 'boolean' },
     ];
     const schemaInfo = await createOffChainSchema(name, data);
 

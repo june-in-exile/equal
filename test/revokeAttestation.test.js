@@ -12,3 +12,4 @@ test('revokeAttestation should return revocation info', async () => {
 
     assert.ok(revocationInfo.attestationId, 'Revoked Attestation ID should exist');
 });
+

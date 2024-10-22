@@ -25,61 +25,38 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
     function handleVerify() {
         setLoading(true);
         if (!worldIdValid.current) {
-            setWorldIdVerifying(true);
+            setOpen(true);
         } else {
             handleMetamaskVerify();
         }
     };
 
     // World ID
-    const [worldIdVerifying, setWorldIdVerifying] = useState(false);
-    const [worldIdVerified, setWorldIdVerified] = useState(false);
+    const app_id = process.env.NEXT_PUBLIC_WLD_APP_ID as `app_${string}`;
+    const action = process.env.NEXT_PUBLIC_WLD_ACTION as string;
+    if (!app_id) {
+        throw new Error("app_id is not set in environment variables.");
+    }
+    if (!action) {
+        throw new Error("action is not set in environment variables.");
+    }
+
     const worldIdValid = useRef(false);
     const { open, setOpen } = useIDKit({});
 
-    const app_id = process.env.NEXT_PUBLIC_WLD_APP_ID as `app_${string}`;
-    const action = process.env.NEXT_PUBLIC_WLD_ACTION;
-
-    if (!app_id) {
-        throw new Error("app_id is not set in environment variables!");
-    }
-    if (!action) {
-        throw new Error("action is not set in environment variables!");
-    }
-
     useEffect(() => {
-        setOpen(worldIdVerifying);
-    }, [worldIdVerifying]);
-
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
-        if (worldIdVerifying) {
-            interval = setInterval(() => {
-                if (!open) {
-                    setLoading(false);
-                    setWorldIdVerifying(false);
-                    clearInterval(interval);
-                }
-            }, 100);
+        if (!open) {
+            setLoading(false);
         }
-        return () => {
-            clearInterval(interval);
-        };
-    }, [worldIdVerifying, open]);
-
-    useEffect(() => {
-        if (worldIdVerified) {
-            handleMetamaskVerify();
-        }
-    }, [worldIdVerified]);
+    }, [open])
 
     async function handleWorldIdVerify(proof: ISuccessResult) {
         const data = await verifyWorldId(proof);
         if (!data.success) {
             console.log(`World ID verification failed: ${data.detail}`);
         }
-        setWorldIdVerifying(false);
-        setWorldIdVerified(true);
+        setOpen(false);
+        handleMetamaskVerify();
     };
 
     function onSuccess(result: ISuccessResult) {
@@ -136,7 +113,7 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
                 handleFailure(res.reason, setVerification);
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Verify API error:', error);
             alert('Try again');
         } finally {
             setLoading(false);

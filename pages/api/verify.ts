@@ -5,25 +5,22 @@ import createAttestation from '@/src/utils/createAttestation.js'
 dotenv.config({ path: '@/.env.local' });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-
-    console.log("backend start verify...");
-
-    const worldIdValid: boolean = req.body.worldIdValid;
-    if (!worldIdValid) {
+    if (!req.body.worldIdValid) {
         res.status(401).json({ reason: "worldId" });
+        return
     }
 
-    const metamaskValid: boolean = req.body.metamaskValid;
-    if (!metamaskValid) {
+    if (!req.body.metamaskValid) {
         res.status(401).json({ reason: "metamask" });
+        return
     }
 
     const schemaId = process.env.schemaId;
     const data = {
         "World ID Verification": "true",
-        "Metamask Balance Check": "true"
+        "Metamask Balance >= 0.02ETH": "true"
     };
-    const indexingValue = 'the verification pass';
+    const indexingValue = 'Verification succeeded';
     const attestationInfo = await createAttestation(schemaId, data, indexingValue);
 
     res.status(200).json({ attestationId: attestationInfo.attestationId });
