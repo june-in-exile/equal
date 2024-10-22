@@ -103,13 +103,13 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
     }, [sdk]);
 
     const handleMetamaskVerify = async () => {
-        verifyMetamask(metamaskValid, sdk)
+        await verifyMetamask(metamaskValid, sdk)
         sendVerifyApi();
     };
 
     // sign protocol
     const attestationId = useRef("");
-    
+
     const sendVerifyApi = useCallback(async () => {
         try {
             const response = await fetch('/api/verify', {

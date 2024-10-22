@@ -2,10 +2,22 @@ import { MetaMaskSDK, SDKProvider } from '@metamask/sdk';
 import { EventType } from '@metamask/sdk-communication-layer';
 import { Dispatch, SetStateAction, MutableRefObject } from 'react';
 
-export function initMetaMaskSDK(
+function onInitialized(...args: any[]): void {
+    throw new Error('Function not implemented.');
+}
+
+function onAccountsChanged(...args: any[]): void {
+    throw new Error('Function not implemented.');
+}
+
+function onProviderEvent(...args: any[]): void {
+    throw new Error('Function not implemented.');
+}
+
+export async function initMetaMaskSDK(
     setSDK: Dispatch<SetStateAction<MetaMaskSDK | undefined>>
 ) {
-    const doAsync = async () => {
+    try {
         const clientSDK = new MetaMaskSDK({
             useDeeplink: false,
             communicationServerUrl: process.env.NEXT_PUBLIC_COMM_SERVER_URL,
@@ -27,8 +39,10 @@ export function initMetaMaskSDK(
 
         await clientSDK.init();
         setSDK(clientSDK);
-    };
-    doAsync();
+    } catch (err) {
+        console.error("Initializing MetaMask SDK error:", err);
+        setSDK(undefined);
+    }
 };
 
 export function setupProviderListeners(
@@ -38,35 +52,48 @@ export function setupProviderListeners(
 ) {
     if (!sdk || !activeProvider) return;
 
-    console.log('App::useEffect setup active provider listeners');
+    try {
+        const selectedAddress = window.ethereum?.getSelectedAddress();
+        if (selectedAddress) {
+            setAccount(selectedAddress);
+        }
 
-    if (window.ethereum?.getSelectedAddress()) {
-        console.log('App::useEffect setting account from window.ethereum');
-        setAccount(window.ethereum?.getSelectedAddress() ?? '');
+        const onInitialized = () => {
+            try {
+                const address = window.ethereum?.getSelectedAddress();
+                if (address) {
+                    setAccount(address);
+                }
+            } catch (error) {
+                console.error('Error in onInitialized:', error);
+            }
+        };
+
+        const onAccountsChanged = (...args: unknown[]) => {
+            try {
+                const accounts = args as string[];
+                setAccount(accounts?.[0] ?? '');
+            } catch (error) {
+                console.error('Error in onAccountsChanged:', error);
+            }
+        };
+
+        window.ethereum?.on('_initialized', onInitialized);
+        window.ethereum?.on('accountsChanged', onAccountsChanged);
+    } catch (error) {
+        console.error('Setting up provider listeners error:', error);
     }
 
-    const onInitialized = () => {
-        console.log('App::useEffect on _initialized');
-        if (window.ethereum?.getSelectedAddress()) {
-            setAccount(window.ethereum?.getSelectedAddress() ?? '');
+    return () => {
+        try {
+            window.ethereum?.removeListener('_initialized', onInitialized);
+            window.ethereum?.removeListener('accountsChanged', onAccountsChanged);
+        } catch (error) {
+            console.error('Removing provider listeners error:', error);
         }
     };
+}
 
-    const onAccountsChanged = (...args: unknown[]) => {
-        const accounts = args as string[];
-        console.log('App::useEfect on accountsChanged', accounts);
-        setAccount((accounts as string[])?.[0]);
-    };
-
-    window.ethereum?.on('_initialized', onInitialized);
-    window.ethereum?.on('accountsChanged', onAccountsChanged);
-
-    return () => {
-        console.log('App::useEffect cleanup activeprovider events');
-        window.ethereum?.removeListener('_initialized', onInitialized);
-        window.ethereum?.removeListener('accountsChanged', onAccountsChanged);
-    };
-};
 
 export function handleProviderUpdate(
     sdk: MetaMaskSDK | undefined,
@@ -75,19 +102,28 @@ export function handleProviderUpdate(
 ) {
     if (!sdk?.isInitialized()) return;
 
-    const onProviderEvent = (accounts: string[]) => {
-        if (accounts?.[0]?.startsWith('0x')) {
-            setAccount(accounts?.[0]);
-        } else {
-            setAccount('');
-        }
-        setActiveProvider(sdk.getProvider());
-    };
+    try {
+        const onProviderEvent = (accounts: string[]) => {
+            if (accounts?.[0]?.startsWith('0x')) {
+                setAccount(accounts?.[0]);
+            } else {
+                setAccount('');
+            }
+            setActiveProvider(sdk.getProvider());
+        };
 
-    sdk.on(EventType.PROVIDER_UPDATE, onProviderEvent);
+        sdk.on(EventType.PROVIDER_UPDATE, onProviderEvent);
+    } catch (error) {
+        console.error('Handling provider update error:', error);
+    }
 
     return () => {
-        sdk.removeListener(EventType.PROVIDER_UPDATE, onProviderEvent);
+        try {
+            sdk.removeListener(EventType.PROVIDER_UPDATE, onProviderEvent);
+        } catch (error) {
+            console.error('Removing provider listeners error:', error);
+        }
+
     };
 };
 
@@ -110,7 +146,7 @@ export async function connect() {
 };
 
 export async function getBalance(
-    account: string
+    account: string | undefined
 ) {
     if (typeof window.ethereum === 'undefined') {
         alert('Please install MetaMask!');
@@ -123,7 +159,7 @@ export async function getBalance(
         });
         return hexBalance ? BigInt(hexBalance) : 0;
     } catch (err) {
-        console.log('get balance ERR', err);
+        console.error('Get balance error:', err);
     }
 };
 
@@ -132,16 +168,16 @@ export async function verifyMetamask(
     sdk: MetaMaskSDK | undefined
 ) {
     const account = await connect();
-    // console.log(`account:`, account);
+    console.log(`account:`, account);
 
-    if (account && /^0x[a-fA-F0-9]{40}$/.test(account)) {
+    try {
         const balance = await getBalance(account);
-        // console.log(`balance: ${balance}`);
-        metamaskValid.current = (balance !== undefined && balance >= 0.02 * (10 ** 18));
-        // console.log(`metamaskValid: ${metamaskValid.current}`);
-    } else {
+        console.log(`balance: ${balance}`);
+        metamaskValid.current = (balance! >= 0.02 * (10 ** 18));
+    } catch {
         console.error('Invalid account address:', account);
     }
+
     sdk?.terminate();
-    // console.log("disconnct from metamask");
+    console.log("Disconncted from metamask.");
 }
