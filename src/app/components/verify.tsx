@@ -17,8 +17,6 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: '@/.env.local' });
 
-// FixMe:   In the WorldID verification, the first scanning doesn't work.
-
 const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
     const [loading, setLoading] = useState(false);
 
@@ -42,12 +40,15 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
     }
 
     const worldIdValid = useRef(false);
-    // open means worldIdVerifing
+    // open equals worldIdVerifing
     const { open, setOpen } = useIDKit({});
 
     async function handleWorldIdVerify(proof: ISuccessResult) {
         const data = await verifyWorldId(proof);
-        if (!data.success) {
+        if (data.success) {
+            worldIdValid.current = true;
+        } else {
+            worldIdValid.current = false
             console.log(`World ID verification failed: ${data.detail}`);
         }
         setMetamaskVerifing(true);

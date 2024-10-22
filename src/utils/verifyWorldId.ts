@@ -27,7 +27,9 @@ export async function verifyWorldId(
     proof: IVerifyRequest["proof"],
     signal?: string
 ): Promise<VerifyReply> {
+    console.log("start verifyCloudProof...")
     const verifyRes = await verifyCloudProof(proof, app_id, action, signal);
+    console.log("finish verifyCloudProof!")
     if (verifyRes.success) {
         return { success: true };
     } else {
