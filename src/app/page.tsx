@@ -6,7 +6,6 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: '@/.env.local' });
 
-// TODO:    A button to revoke the attestation
 export default function Home() {
     const [verification, setVerification] = useState<VerificationState>(VerificationState.Unverified);
 
