@@ -1,9 +1,15 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { VerificationState, type IVerifyProps } from '../../types/type';
-import { verifyWorldId } from '../../utils/verifyWorldId';
-import { verifyMetamask, initMetaMaskSDK, setupProviderListeners, handleProviderUpdate } from '../../utils/verifyMetamask';
 import { VerificationLevel, IDKitWidget, useIDKit, type ISuccessResult } from "@worldcoin/idkit";
 import { MetaMaskSDK, SDKProvider } from '@metamask/sdk';
+import {
+    verifyWorldId,
+    verifyMetamask,
+    initMetaMaskSDK,
+    setupProviderListeners,
+    handleProviderUpdate,
+    handleFailure
+} from '../../utils';
 
 import Image from "next/image";
 import Link from "next/link";
@@ -12,12 +18,18 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '@/.env.local' });
 
 // FixMe:   In the WorldID verification, the first scanning doesn't work.
-// FixMe:   After the first successful WorldID verification,
-//          the second verification cannot finish (it just keeps verifying).
-// XXX:     The code is bulky.
 
 const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
     const [loading, setLoading] = useState(false);
+
+    function handleVerify() {
+        setLoading(true);
+        if (!worldIdValid.current) {
+            setWorldIdVerifying(true);
+        } else {
+            handleMetamaskVerify();
+        }
+    };
 
     // World ID
     const [worldIdVerifying, setWorldIdVerifying] = useState(false);
@@ -61,25 +73,18 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
         }
     }, [worldIdVerified]);
 
-    const handleWorldIdVerify = async (proof: ISuccessResult) => {
-        console.log(
-            "Proof received from IDKit, sending to backend:\n",
-            JSON.stringify(proof)
-        );
+    async function handleWorldIdVerify(proof: ISuccessResult) {
         const data = await verifyWorldId(proof);
-        if (data.success) {
-            worldIdValid.current = true;
-            console.log("World ID: Successful response from backend:\n", JSON.stringify(data));
-        } else {
-            // throw new Error(`Verification failed: ${data.detail}`);
-            console.log(`World ID: Verification failed: ${data.detail}`);
+        if (!data.success) {
+            console.log(`World ID verification failed: ${data.detail}`);
         }
         setWorldIdVerifying(false);
         setWorldIdVerified(true);
     };
 
-    const onSuccess = (result: ISuccessResult) => {
-        console.log(`Successfully verified with World ID with nullifier hash: ${result.nullifier_hash}`);
+    function onSuccess(result: ISuccessResult) {
+        worldIdValid.current = true;
+        console.log(`World ID successfully verified with nullifier hash: ${result.nullifier_hash}`);
     };
 
     // metamask
@@ -102,7 +107,7 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
         return cleanup;
     }, [sdk]);
 
-    const handleMetamaskVerify = async () => {
+    async function handleMetamaskVerify() {
         await verifyMetamask(metamaskValid, sdk)
         sendVerifyApi();
     };
@@ -128,19 +133,7 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
                 attestationId.current = res.attestationId;
                 alert('Verification succeeded.');
             } else {
-                switch (res.reason) {
-                    case "worldId":
-                        setVerification(VerificationState.InvalidWorldId);
-                        alert("Verification failed. Please check your World ID credentials.");
-                        break;
-                    case "metamask":
-                        setVerification(VerificationState.MetamaskBalanceNotEnough);
-                        alert("Verification failed. Please check your Metamask balance.");
-                        break;
-                    default:
-                        setVerification(VerificationState.Unverified);
-                        alert('Verification failed.');
-                }
+                handleFailure(res.reason, setVerification);
             }
         } catch (error) {
             console.error('Error:', error);
@@ -149,11 +142,6 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
             setLoading(false);
         }
     }, [setVerification]);
-
-    const handleVerify = () => {
-        setLoading(true);
-        setWorldIdVerifying(true);
-    };
 
     return (<>
         <IDKitWidget
