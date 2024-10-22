@@ -1,17 +1,18 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import dotenv from 'dotenv';
 import createAttestation from '@/src/utils/createAttestation.js'
+import { VerificationState } from '@/src//types/type';
 
 dotenv.config({ path: '@/.env.local' });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (!req.body.worldIdValid) {
-        res.status(401).json({ reason: "worldId" });
+        res.status(401).json({ reason: VerificationState.InvalidWorldId });
         return
     }
 
     if (!req.body.metamaskValid) {
-        res.status(401).json({ reason: "metamask" });
+        res.status(401).json({ reason: VerificationState.MetamaskBalanceNotEnough });
         return
     }
 

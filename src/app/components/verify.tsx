@@ -42,19 +42,15 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
     }
 
     const worldIdValid = useRef(false);
+    // open means worldIdVerifing
     const { open, setOpen } = useIDKit({});
-
-    useEffect(() => {
-        if (!open) {
-            setLoading(false);
-        }
-    }, [open])
 
     async function handleWorldIdVerify(proof: ISuccessResult) {
         const data = await verifyWorldId(proof);
         if (!data.success) {
             console.log(`World ID verification failed: ${data.detail}`);
         }
+        setMetamaskVerifing(true);
         setOpen(false);
         handleMetamaskVerify();
     };
@@ -67,6 +63,7 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
     // metamask
     const [sdk, setSDK] = useState<MetaMaskSDK>();
     const [account, setAccount] = useState<string>('');
+    const [metamaskVerifying, setMetamaskVerifing] = useState(false);
     const [activeProvider, setActiveProvider] = useState<SDKProvider>();
     const metamaskValid = useRef(false);
 
@@ -87,12 +84,15 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
     async function handleMetamaskVerify() {
         await verifyMetamask(metamaskValid, sdk)
         sendVerifyApi();
+        setMetamaskVerifing(false);
     };
 
     // sign protocol
+    const [waitingRes, setWaitingRes] = useState(false);
     const attestationId = useRef("");
 
     const sendVerifyApi = useCallback(async () => {
+        setWaitingRes(true);
         try {
             const response = await fetch('/api/verify', {
                 method: 'POST',
@@ -116,9 +116,15 @@ const Verify: React.FC<IVerifyProps> = ({ verification, setVerification }) => {
             console.error('Verify API error:', error);
             alert('Try again');
         } finally {
-            setLoading(false);
+            setWaitingRes(false);
         }
     }, [setVerification]);
+
+    useEffect(() => {
+        if (!open && !metamaskVerifying && !waitingRes) {
+            setLoading(false);
+        }
+    }, [open, metamaskVerifying, waitingRes])
 
     return (<>
         <IDKitWidget
