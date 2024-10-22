@@ -20,7 +20,6 @@ A notary (Sign Protocol) attesting that the user's account (metamask) is human (
 On-Chain
 - "[SIGNIE commitment](https://app.sign.global/schema/SPS_TGVj7wO0St5qhpa1Q5jwj)" schema 
 
-
 ## Getting Started
 
 First, run the development server:

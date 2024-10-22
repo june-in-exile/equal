@@ -1,5 +1,5 @@
 import React from 'react';
-import { type IStatusProps } from "@/src/app/type";
+import { type IStatusProps } from "@/src/types/type";
 
 const Status: React.FC<IStatusProps> = ({ verification }) => {
     return (

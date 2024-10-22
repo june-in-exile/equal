@@ -1,7 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { Verify, Read, Status, Description } from './components';
-import { VerificationState } from './type';
+import { VerificationState } from '../types/type';
 import dotenv from 'dotenv';
 
 dotenv.config({ path: '@/.env.local' });
